@@ -16,7 +16,7 @@ SITE = dict(
     ),
     subtitle='NHK NEWS WEB EASY',
     author='NHK',
-    image='https://feeds.doocer.com/images/newseasy@2x.png',
+    image='https://feeds.doocer.com/images/newseasy.png',
     email='',
     explicit='no',
     category='Education',
