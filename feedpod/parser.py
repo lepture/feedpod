@@ -3,6 +3,7 @@ import time
 import json
 import hashlib
 import requests
+from requests.compat import bytes
 from bs4 import BeautifulSoup
 from mutagen.mp3 import MP3
 from .template import gen_feed
@@ -48,23 +49,21 @@ class Parser(object):
         print('GET {} - {}'.format(resp.url, resp.status_code))
 
     def fetch_item(self, url):
-        hasher = hashlib.sha1(url)
-        key = hasher.hexdigest()
+        key = sha1(url)
         file_path = os.path.join(self.cache_dir, key + '.json')
         if os.path.isfile(file_path):
-            with open(file_path, 'rb') as f:
+            with open(file_path, 'r') as f:
                 return json.load(f)
 
         resp = self.request(url)
         data = self.parse_item(resp)
 
-        with open(file_path, 'wb') as f:
+        with open(file_path, 'w') as f:
             json.dump(data, f)
         return data
 
     def fetch_audio(self, url):
-        hasher = hashlib.sha1(url)
-        key = hasher.hexdigest()
+        key = sha1(url)
         file_path = os.path.join(self.cache_dir, key + '.mp3')
 
         resp = self.session.get(url, stream=True)
@@ -82,3 +81,10 @@ class Parser(object):
         duration = int(audio.info.length)
         # TODO: delete cache
         return dict(duration=duration, size=size)
+
+
+def sha1(text):
+    if not isinstance(text, bytes):
+        text = bytes(text, 'utf-8')
+    hasher = hashlib.sha1(text)
+    return hasher.hexdigest()
